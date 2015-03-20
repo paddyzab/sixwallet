@@ -4,7 +4,7 @@ import retrofit.RestAdapter;
 
 public class ApiProvider {
 
-    private final String SIX_API_URL = "ppp.ti8m.ch/hackathon/";
+    private final String SIX_API_URL = "https://ppp.ti8m.ch/hackathon/";
 
     private SixApi mSixApi;
 
@@ -21,7 +21,7 @@ public class ApiProvider {
                 .setLogLevel(RestAdapter.LogLevel.valueOf("FULL"))
                 .build();
 
-        restAdapter.create(SixApi.class);
+        mSixApi = restAdapter.create(SixApi.class);
     }
 
 }
