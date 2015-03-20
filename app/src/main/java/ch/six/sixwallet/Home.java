@@ -1,9 +1,16 @@
 package ch.six.sixwallet;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
+import ch.six.sixwallet.activities.InsertActivity;
+import ch.six.sixwallet.activities.RegistrationActivity;
+import ch.six.sixwallet.widget.DialogInsert;
 
 
 public class Home extends Activity {
@@ -12,6 +19,23 @@ public class Home extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        ((Button) findViewById(R.id.button_registration)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, RegistrationActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.button_insertGoal).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //new DialogInsert(Home.this).show();
+                Intent intent = new Intent(Home.this, InsertActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

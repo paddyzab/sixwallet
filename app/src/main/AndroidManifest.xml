@@ -20,6 +20,11 @@
             android:name=".activities.RegistrationActivity"
             android:label="@string/title_activity_registration" >
         </activity>
+        <activity
+            android:name=".activities.InsertActivity"
+            android:label="@string/title_activity_insert"
+            android:theme="@android:style/Theme.Material.Light.Dialog.Alert">
+        </activity>
     </application>
 
 </manifest>
