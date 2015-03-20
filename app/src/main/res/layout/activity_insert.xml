@@ -9,7 +9,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/editText2"
+        android:id="@+id/editText_namegoal"
         android:hint="Name of the goal"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spinner"
-        android:layout_below="@+id/editText2"
+        android:layout_below="@+id/editText_namegoal"
         android:layout_alignParentStart="true" />
 
     <Button

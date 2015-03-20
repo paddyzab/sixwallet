@@ -12,13 +12,20 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.util.ArrayList;
+
+import ch.six.sixwallet.Goal;
 import ch.six.sixwallet.R;
+import ch.six.sixwallet.utils.Utils.SharedPreferences;
 
 public class InsertActivity extends Activity {
 
     static public final int CONTACT = 0;
 
     private EditText mPhoneNumber;
+    private EditText mName;
+    private Spinner mSpinner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +33,7 @@ public class InsertActivity extends Activity {
         setContentView(R.layout.activity_insert);
 
         mPhoneNumber = (EditText) findViewById(R.id.editText_phoneNumber);
+        mName = (EditText) findViewById(R.id.editText_namegoal);
 
         findViewById(R.id.button_search).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,15 +44,22 @@ public class InsertActivity extends Activity {
         });
 
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        mSpinner = (Spinner) findViewById(R.id.spinner);
 // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.api_array, android.R.layout.simple_spinner_item);
 // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
+        mSpinner.setAdapter(adapter);
 
+
+        findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                save();
+            }
+        });
     }
 
 
@@ -59,4 +74,16 @@ public class InsertActivity extends Activity {
             mPhoneNumber.setText(phone);
         }
     }
+
+
+    private void save() {
+        Goal i = new Goal();
+        i.setApi((String)mSpinner.getSelectedItem());
+        i.setName(mName.getText().toString());
+        i.setPhoneNumber(mPhoneNumber.getText().toString());
+        ArrayList array = SharedPreferences.getSavedArray();
+        array.add(i);
+        SharedPreferences.saveArray(array);
+    }
+
 }

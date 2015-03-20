@@ -1,7 +1,9 @@
 package ch.six.sixwallet.utils.Utils;
 
 import android.content.Context;
+import android.os.Environment;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,7 +27,7 @@ public class SharedPreferences {
     public static void saveArray(ArrayList array) {
 
         try{
-            FileOutputStream fos= new FileOutputStream("myfile");
+            FileOutputStream fos= new FileOutputStream(getFile());
             ObjectOutputStream oos= new ObjectOutputStream(fos);
             oos.writeObject(array);
             oos.close();
@@ -40,22 +42,38 @@ public class SharedPreferences {
         ArrayList<String> arraylist= new ArrayList<String>();
         try
         {
-            FileInputStream fis = new FileInputStream("myfile");
+            FileInputStream fis = new FileInputStream(getFile());
             ObjectInputStream ois = new ObjectInputStream(fis);
             arraylist = (ArrayList) ois.readObject();
             ois.close();
             fis.close();
         }catch(IOException ioe){
             ioe.printStackTrace();
-            return null;
         }catch(ClassNotFoundException c){
             System.out.println("Class not found");
             c.printStackTrace();
-            return null;
         }
 
         return arraylist;
     }
 
+
+    public static File getFile() {
+        String extr = Environment.getExternalStorageDirectory().toString();
+        File mFolder = new File(extr + "myfile");
+        if (!mFolder.exists()) {
+            try {
+                mFolder.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /*String s = "myfile";
+
+        File f = new File(mFolder.getAbsolutePath(), s);*/
+
+        return mFolder;
+    }
 
 }
