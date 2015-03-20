@@ -2,52 +2,37 @@ package ch.six.sixwallet;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 import ch.six.sixwallet.backend.ApiProvider;
-import ch.six.sixwallet.backend.SixApi;
-import ch.six.sixwallet.backend.models.Balance;
-import ch.six.sixwallet.backend.models.RequestTransaction;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import ch.six.sixwallet.backend.six_p2p.SixApi;
+import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
+import ch.six.sixwallet.backend.six_p2p.callbacks.SendRequestCallback;
+import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 
 public class Home extends Activity {
 
+    private final static String USER_TOKEN = "aplhdffRBBqjljPLAyMVcFBh9jTbh85f";
+    private SixApi sixApi;
+    private SendRequestCallback sendRequestCallback;
+
+    @InjectView(R.id.textViewBalance)
+    public TextView textViewBalance;
 
     @OnClick(R.id.buttonSendRequest)
     public void sendRequest() {
-        sixApi.createPaymentRequest("aplhdffRBBqjljPLAyMVcFBh9jTbh85f", createRequestTransaction(),
-                new Callback<Object>() {
-                    @Override
-                    public void success(Object o, Response response) {
-                        Log.d(Home.class.getSimpleName(), response.toString());
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d(Home.class.getSimpleName(), error.toString());
-                    }
-                });
+        sixApi.createPaymentRequest(USER_TOKEN,
+                createRequestTransaction("100", "Give me reward please", "+41796845634"),
+                sendRequestCallback);
     }
-
-    private RequestTransaction createRequestTransaction() {
-        final RequestTransaction requestTransaction = new RequestTransaction();
-        requestTransaction.setAmount("100");
-        requestTransaction.setComment("Give me moneyz");
-        requestTransaction.setPhoneNumber("+41796845634");
-        return requestTransaction;
-    }
-
-    private SixApi sixApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,29 +44,11 @@ public class Home extends Activity {
 
         ButterKnife.inject(this);
 
-        // TODO remove this hardcoded!
-        sixApi.getCurrentBalance("aplhdffRBBqjljPLAyMVcFBh9jTbh85f").subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Balance>() {
-                                                                         @Override
-                                                                         public void call(
-                                                                                 Balance balance) {
-                                                                             Log.d(Home.class
-                                                                                             .getSimpleName(),
-                                                                                     "Value passed: "
-                                                                                             + String
-                                                                                             .valueOf(
-                                                                                                     balance.getBalance()));
-                                                                         }
-                                                                     },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Log.d(Home.class.getSimpleName(),
-                                "Yikes! we got an error: " + throwable.toString());
-                    }
-                });
+        final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
+        sendRequestCallback = new SendRequestCallback();
 
-
+        sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
     }
 
     @Override
@@ -104,5 +71,13 @@ public class Home extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private RequestTransaction createRequestTransaction(final String amount, final String comment,
+            final String number) {
+        return new RequestTransaction()
+                .setAmount(amount)
+                .setComment(comment)
+                .setPhoneNumber(number);
     }
 }

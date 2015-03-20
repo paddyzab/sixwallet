@@ -1,7 +1,7 @@
-package ch.six.sixwallet.backend;
+package ch.six.sixwallet.backend.six_p2p;
 
-import ch.six.sixwallet.backend.models.Balance;
-import ch.six.sixwallet.backend.models.RequestTransaction;
+import ch.six.sixwallet.backend.six_p2p.models.Balance;
+import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;

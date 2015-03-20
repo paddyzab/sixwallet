@@ -1,4 +1,4 @@
-package ch.six.sixwallet.backend.models;
+package ch.six.sixwallet.backend.six_p2p.models;
 
 import com.google.gson.annotations.SerializedName;
 

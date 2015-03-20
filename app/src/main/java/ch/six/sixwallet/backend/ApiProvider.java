@@ -1,5 +1,6 @@
 package ch.six.sixwallet.backend;
 
+import ch.six.sixwallet.backend.six_p2p.SixApi;
 import retrofit.RestAdapter;
 
 public class ApiProvider {
