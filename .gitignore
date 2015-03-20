@@ -24,3 +24,9 @@ proguard/
 
 # Log Files
 *.log
+
+.gradle
+/local.properties
+.DS_Store
+/build
+.idea
