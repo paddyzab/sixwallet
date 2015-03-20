@@ -10,14 +10,14 @@ public class ApiProvider {
     private SixApi mSixApi;
 
     public ApiProvider() {
-        initSixp2pApi();
+        initSixApi();
     }
 
     public SixApi getSixApi() {
         return mSixApi;
     }
 
-    private void initSixp2pApi() {
+    private void initSixApi() {
         RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(SIX_API_URL)
                 .setLogLevel(RestAdapter.LogLevel.valueOf("FULL"))
                 .build();

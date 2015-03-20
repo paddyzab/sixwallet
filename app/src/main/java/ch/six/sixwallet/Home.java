@@ -12,6 +12,7 @@ import butterknife.OnClick;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
+import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
 import ch.six.sixwallet.backend.six_p2p.callbacks.SendRequestCallback;
 import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
 import rx.android.schedulers.AndroidSchedulers;
@@ -21,6 +22,7 @@ import rx.schedulers.Schedulers;
 public class Home extends Activity {
 
     private final static String USER_TOKEN = "aplhdffRBBqjljPLAyMVcFBh9jTbh85f";
+
     private SixApi sixApi;
     private SendRequestCallback sendRequestCallback;
 
@@ -46,9 +48,13 @@ public class Home extends Activity {
 
         final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
         sendRequestCallback = new SendRequestCallback();
+        final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
 
         sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
+
+        sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
     }
 
     @Override
