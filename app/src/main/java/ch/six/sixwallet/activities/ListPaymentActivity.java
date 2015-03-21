@@ -1,34 +1,38 @@
 package ch.six.sixwallet.activities;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import ch.six.sixwallet.R;
 
-public class ListPaymentActivity extends Activity {
+public class ListPaymentActivity extends ListActivity {
 
-    private ListView mListView;
-    private LinkedHashMap mapList;
 
+    ArrayList<ch.six.sixwallet.backend.six_p2p.models.Activity> mActivitiesList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_payment);
 
-        mListView = (ListView) findViewById(R.id.listView);
+        mActivitiesList = new ArrayList<>();
 
 
-        mapList = new LinkedHashMap();
-        mapList.put("a", "r");
-        mapList.put("t", "h");
 
-        //ArrayAdapter ArrayAdapter
+        /*ArrayAdapter<ch.six.sixwallet.backend.six_p2p.models.Activity> itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<>()) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                return v;
+            }
+        };*/
 
     }
 

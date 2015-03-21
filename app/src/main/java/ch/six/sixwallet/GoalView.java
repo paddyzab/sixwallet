@@ -40,7 +40,7 @@ public class GoalView extends RelativeLayout {
         removeAllViewsInLayout();
         View child;
         Goal g = new Goal();
-        if (g.load(getContext())) {
+        if (!isInEditMode() && g.load(getContext())) {
             child = lif.inflate(R.layout.layout_view_goal, null);
             initView(child, g);
         } else {
@@ -52,6 +52,7 @@ public class GoalView extends RelativeLayout {
     }
 
     private void initView(View view, Goal goal) {
+
         view.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
