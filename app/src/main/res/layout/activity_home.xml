@@ -31,6 +31,7 @@
 
             <com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar
                 android:id="@+id/progressBar"
+                style="@style/CircularProgressBarLight"
                 android:layout_width="300dp"
                 android:layout_height="300dp"
                 android:layout_centerInParent="true"/>
@@ -50,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/today"
                 android:layout_centerHorizontal="true"
-                android:textColor="@android:color/holo_green_dark"
+                android:textColor="#ffff4444"
                 android:textSize="18sp"
                 android:text="0000 m to go"/>
 
