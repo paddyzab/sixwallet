@@ -1,4 +1,4 @@
-# sixwallet
+# SkyCash
 
 SkyCash is new approach to charity.
 We enable distribiuted charity actions, where user can gather money for a cause she had choosen among the friends.
