@@ -1,5 +1,7 @@
 package ch.six.sixwallet;
 
+import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
+import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
 
 import android.animation.Animator;
@@ -7,6 +9,7 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.view.View;
 import android.widget.TextView;
 
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
@@ -33,6 +36,7 @@ public class PaymentController {
     private HoloCircularProgressBar mProgressBar;
 
     private ObjectAnimator mProgressBarAnimator;
+    final NiftyDialogBuilder dialogBuilder;
 
     private final UpdateActivityCounterAction mUpdateActivityCounterAction;
 
@@ -52,6 +56,25 @@ public class PaymentController {
         mTextViewToday = textViewToday;
         mTextViewToGoal = textViewToGoal;
         mProgressBar = progressBar;
+
+        dialogBuilder = NiftyDialogBuilder.getInstance(textViewToday.getContext());
+        dialogBuilder
+                .withTitle("Congratulations!")
+                .withMessage("You completed a lap. \nPayment request to sponsor was sent!")
+                .withTitleColor("#FFFFFF")
+                .withDividerColor("#ffff4444")
+                .withMessageColor("#FFFFFFFF")
+                .withDuration(700)
+                .withEffect(Effectstype.RotateBottom)
+                .isCancelableOnTouchOutside(true)
+                .withDialogColor("#444444")
+                .withButton1Text("OK")
+                .setButton1Click(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialogBuilder.dismiss();
+                    }
+                });
     }
 
     public void updateDistanceCounter() {
@@ -69,8 +92,11 @@ public class PaymentController {
         // Payment threshold reached!
         if (mCurrentDistance >= PAYMENT_TRIGGER_THRESHOLD) {
             mSixApi.createPaymentRequest(Home.USER_TOKEN,
-                    createRequestTransaction("100", "Goal completed, I deserve a reward!", "+41796845634"),
+                    createRequestTransaction("100", "Goal completed, I deserve a reward!",
+                            "+41796845634"),
                     sendRequestCallback);
+
+            dialogBuilder.show();
 
             //resetting KV storage distance count
             this.mCurrentDistance = 0;
