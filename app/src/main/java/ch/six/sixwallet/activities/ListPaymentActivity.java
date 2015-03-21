@@ -2,6 +2,7 @@ package ch.six.sixwallet.activities;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ public class ListPaymentActivity extends ListActivity {
 
     ArrayList<PaymentActivity> mActivitiesList;
     private SixApi sixApi;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
 
     @Override
@@ -44,7 +46,21 @@ public class ListPaymentActivity extends ListActivity {
 
         mActivitiesList = new ArrayList<>();
 
+        callApi();
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.SwipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                callApi();
+
+            }
+        });
+
+    }
+
+
+    private void callApi() {
         sixApi.getUserActivities(Home.USER_TOKEN,
                 new Callback<List<PaymentActivity>>() {
                     @Override
@@ -53,6 +69,7 @@ public class ListPaymentActivity extends ListActivity {
                         Log.d(Home.class.getSimpleName(), "success");
                         filterPaymentActivity(activities);
                         populateListView(activities);
+                        mSwipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
@@ -61,9 +78,7 @@ public class ListPaymentActivity extends ListActivity {
                         Toast.makeText(getApplicationContext(), "Error while getting the payment list, please try again", Toast.LENGTH_LONG).show();
                     }
                 });
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
