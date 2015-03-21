@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.six.sixwallet.Home;
@@ -112,6 +113,9 @@ public class ListPaymentActivity extends ListActivity {
                 if(item.getType() == PaymentActivity.REQUESTED) {
                     status += "Requested";
                 }
+
+                Date date = new Date(item.getTimestamp());
+                status += " (" + date.toString() + ")";
 
                 ((TextView)v.findViewById(android.R.id.text1)).setText(getName(item.getPhoneNumber()) + " (" + item.getPhoneNumber() + ")");
                 ((TextView)v.findViewById(android.R.id.text2)).setText(status);
