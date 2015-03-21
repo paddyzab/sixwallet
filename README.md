@@ -8,6 +8,7 @@ User can find a sponsor of his efforts - either that be family member or group o
 her effort, which can either go for hers own pocket or to account of a choosen charity.
 
 Team members
+
 Albert Hugo Widmann
 
 Jean-Marie Bise
