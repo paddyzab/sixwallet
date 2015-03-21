@@ -1,5 +1,19 @@
 package ch.six.sixwallet;
 
+import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.json.jackson.JacksonFactory;
+
+import com.wuman.android.auth.AuthorizationFlow;
+import com.wuman.android.auth.AuthorizationUIController;
+import com.wuman.android.auth.DialogFragmentController;
+import com.wuman.android.auth.OAuthManager;
+import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
+
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,19 +25,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.api.client.auth.oauth2.BearerToken;
-import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.json.jackson.JacksonFactory;
-import com.wuman.android.auth.AuthorizationFlow;
-import com.wuman.android.auth.AuthorizationUIController;
-import com.wuman.android.auth.DialogFragmentController;
-import com.wuman.android.auth.OAuthManager;
-import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 
 import butterknife.ButterKnife;
@@ -33,7 +34,7 @@ import ch.six.sixwallet.activities.RegistrationActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
-import ch.six.sixwallet.backend.runkeeper.callbacks.RunKeeperOauthCallback;
+import ch.six.sixwallet.backend.runkeeper.callbacks.RunkeeperOauthCallback;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
 import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
@@ -56,6 +57,8 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     private SharedPreferencesKeyValueStorage keyValueStorage;
     private PaymentController paymentController;
 
+    private final int TWO_SECONDS = 2000; // in milis
+
     @InjectView(R.id.textViewBalance)
     public TextView textViewBalance;
 
@@ -63,7 +66,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
 
         ButterKnife.inject(this);
         createApis();
@@ -92,7 +94,7 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
                         SharedPreferencesKeyValueStorage.KV_STORAGE);
 
         final OAuthManager oauth = getOAuthManager(credentialStore);
-        final RunKeeperOauthCallback runKeeperOauthCallback = new RunKeeperOauthCallback(
+        final RunkeeperOauthCallback runKeeperOauthCallback = new RunkeeperOauthCallback(
                 credentialStore,
                 runKeeperApi, updateFitnessActivityPageAction, keyValueStorage);
         oauth.authorizeExplicitly(CURRENT_USER, runKeeperOauthCallback, new Handler());
@@ -112,13 +114,14 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeLayout.setOnRefreshListener(this);
 
-        ((Button) findViewById(R.id.button_registration)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Home.this, RegistrationActivity.class);
-                startActivity(intent);
-            }
-        });
+        ((Button) findViewById(R.id.button_registration))
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Home.this, RegistrationActivity.class);
+                        startActivity(intent);
+                    }
+                });
 
         findViewById(R.id.button_insertGoal).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,7 +192,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
                     public boolean isJavascriptEnabledForWebView() {
                         return true;
                     }
-
                 };
 
         return new OAuthManager(flow, controller);
@@ -200,8 +202,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
                 keyValueStorage.getString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY))) {
             paymentController.updateDistanceCounter();
         }
-
-
     }
 
     @Override
@@ -211,7 +211,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
             public void run() {
                 mSwipeLayout.setRefreshing(false);
             }
-        }, 2000);
-
+        }, TWO_SECONDS);
     }
 }

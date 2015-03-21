@@ -17,18 +17,15 @@ public class GoalView extends RelativeLayout {
 
 
     public GoalView(Context context) {
-        super(context);
-        refresh();
+        this(context, null);
     }
 
     public GoalView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        refresh();
+        this(context, attrs, 0);
     }
 
     public GoalView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        refresh();
+        this(context, attrs, defStyleAttr, 0);
     }
 
     public GoalView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {

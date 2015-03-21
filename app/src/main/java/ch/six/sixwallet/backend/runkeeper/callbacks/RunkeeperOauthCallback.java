@@ -16,14 +16,14 @@ import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class RunKeeperOauthCallback implements OAuthManager.OAuthCallback<Credential> {
+public class RunkeeperOauthCallback implements OAuthManager.OAuthCallback<Credential> {
 
     final SharedPreferencesCredentialStore mSharedPreferencesCredentialStore;
     final RunKeeperApi mRunKeeperApi;
     final UpdateFitnessActivityPageAction mUpdateFitnessActivityPageAction;
     final SharedPreferencesKeyValueStorage mSharedPreferencesKeyValueStorage;
 
-    public RunKeeperOauthCallback(
+    public RunkeeperOauthCallback(
             final SharedPreferencesCredentialStore sharedPreferencesCredentialStore,
             final RunKeeperApi runKeeperApi,
             final UpdateFitnessActivityPageAction updateFitnessActivityPageAction,
@@ -52,7 +52,7 @@ public class RunKeeperOauthCallback implements OAuthManager.OAuthCallback<Creden
                         .storeString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY,
                                 mRunKeeperAccessToken);
             } else {
-                Log.w(RunKeeperOauthCallback.class.getSimpleName(),
+                Log.w(RunkeeperOauthCallback.class.getSimpleName(),
                         "Token is empty, and it should not.");
             }
         } catch (IOException e) {
