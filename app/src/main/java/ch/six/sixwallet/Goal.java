@@ -3,10 +3,13 @@ package ch.six.sixwallet;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
+
 /**
  * Created by jm on 20/03/15.
  */
 public class Goal {
+
     private String name;
     private String phoneNumber;
     private String api;
@@ -17,6 +20,7 @@ public class Goal {
         this.api = api;
 
     }
+
     public Goal() {
 
     }
@@ -46,20 +50,21 @@ public class Goal {
     }
 
     public boolean load(Context ctx) {
-        android.content.SharedPreferences pref = ctx.getSharedPreferences("ch.six.sixwallet", Context.MODE_PRIVATE);
-        this.name = pref.getString("name", null);
-        this.phoneNumber = pref.getString("phoneNumber", null);
-        this.api = pref.getString("api", null);
+        android.content.SharedPreferences pref = ctx
+                .getSharedPreferences("ch.six.sixwallet", Context.MODE_PRIVATE);
+        this.name = pref.getString("name", SharedPreferencesKeyValueStorage.EMPTY_STRING);
+        this.phoneNumber = pref
+                .getString("phoneNumber", SharedPreferencesKeyValueStorage.EMPTY_STRING);
+        this.api = pref.getString("api", SharedPreferencesKeyValueStorage.EMPTY_STRING);
 
-        if (name.equals("") || phoneNumber.equals("") || api.equals("")) {
-            return false;
-        } else {
-            return true;
-        }
+        return (name.equals(SharedPreferencesKeyValueStorage.EMPTY_STRING) || phoneNumber
+                .equals(SharedPreferencesKeyValueStorage.EMPTY_STRING) || api
+                .equals(SharedPreferencesKeyValueStorage.EMPTY_STRING));
     }
 
     public void save(Context ctx) {
-        android.content.SharedPreferences pref = ctx.getSharedPreferences("ch.six.sixwallet", Context.MODE_PRIVATE);
+        android.content.SharedPreferences pref = ctx
+                .getSharedPreferences("ch.six.sixwallet", Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = pref.edit();
         edit.putString("name", name);
         edit.putString("phoneNumber", phoneNumber);

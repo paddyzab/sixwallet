@@ -9,7 +9,7 @@ public class SharedPreferencesKeyValueStorage {
     public final static String DISTANCE_STORAGE_KEY = "_distance_storage";
     public final static String KV_STORAGE = "_kv_storage";
     private final SharedPreferences mSharedPreferences;
-    private final String EMPTY_STRING = "";
+    public final static String EMPTY_STRING = "";
 
     public SharedPreferencesKeyValueStorage(final Context context, final String fileName) {
         mSharedPreferences = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
