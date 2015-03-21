@@ -1,5 +1,14 @@
 package ch.six.sixwallet;
 
+import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
+
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.widget.TextView;
+
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateActivityCounterAction;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
@@ -15,14 +24,22 @@ public class PaymentController {
     private final RunKeeperApi mRunKeeperApi;
     private final SharedPreferencesKeyValueStorage mSharedPreferencesKeyValueStorage;
 
-    private final double PAYMENT_TRIGGER_TRESCHOLD = 10000;
+    private final float PAYMENT_TRIGGER_TRESCHOLD = 10000;
     private final SendRequestCallback sendRequestCallback;
     private float mCurrentDistance;
+
+    private TextView mTextViewToday;
+    private TextView mTextViewToGoal;
+    private HoloCircularProgressBar mProgressBar;
+
+    private ObjectAnimator mProgressBarAnimator;
 
     private final UpdateActivityCounterAction mUpdateActivityCounterAction;
 
     public PaymentController(final SixApi sixApi, final RunKeeperApi runKeeperApi,
-            final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage) {
+            final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage,
+            final TextView textViewToday, final TextView textViewToGoal,
+            HoloCircularProgressBar progressBar) {
         mSixApi = sixApi;
         mRunKeeperApi = runKeeperApi;
         mSharedPreferencesKeyValueStorage = sharedPreferencesKeyValueStorage;
@@ -31,6 +48,10 @@ public class PaymentController {
 
         mCurrentDistance = mSharedPreferencesKeyValueStorage
                 .getFloat(SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY);
+
+        mTextViewToday = textViewToday;
+        mTextViewToGoal = textViewToGoal;
+        mProgressBar = progressBar;
     }
 
     public void updateDistanceCounter() {
@@ -52,13 +73,70 @@ public class PaymentController {
                     sendRequestCallback);
 
             //resetting KV storage distance count
+            this.mCurrentDistance = 0;
             mSharedPreferencesKeyValueStorage.storeFloat(
-                    SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, 0);
+                    SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, mCurrentDistance);
+
             // Payment threshold not reached, increment the counter!
         } else {
             mSharedPreferencesKeyValueStorage.storeFloat(
                     SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, mCurrentDistance);
         }
+
+        animate(mProgressBar, null, calculateProgress(mCurrentDistance), 1000);
+
+        mTextViewToday.setText(buildDistanceString(mCurrentDistance, "Today"));
+        mTextViewToGoal.setText(
+                buildDistanceString((PAYMENT_TRIGGER_TRESCHOLD - mCurrentDistance), "To Go!"));
+    }
+
+    private float calculateProgress(float currentDistance) {
+        return currentDistance / PAYMENT_TRIGGER_TRESCHOLD;
+    }
+
+
+    private void animate(final HoloCircularProgressBar progressBar, final AnimatorListener listener,
+            final float progress, final int duration) {
+
+        mProgressBarAnimator = ObjectAnimator.ofFloat(progressBar, "progress", progress);
+        mProgressBarAnimator.setDuration(duration);
+
+        mProgressBarAnimator.addListener(new AnimatorListener() {
+
+            @Override
+            public void onAnimationCancel(final Animator animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(final Animator animation) {
+                progressBar.setProgress(progress);
+            }
+
+            @Override
+            public void onAnimationRepeat(final Animator animation) {
+            }
+
+            @Override
+            public void onAnimationStart(final Animator animation) {
+            }
+        });
+        if (listener != null) {
+            mProgressBarAnimator.addListener(listener);
+        }
+        mProgressBarAnimator.reverse();
+        mProgressBarAnimator.addUpdateListener(new AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(final ValueAnimator animation) {
+                progressBar.setProgress((Float) animation.getAnimatedValue());
+            }
+        });
+        progressBar.setMarkerProgress(progress);
+        mProgressBarAnimator.start();
+    }
+
+    private String buildDistanceString(float currentDistance, String timeContext) {
+        return String.valueOf((int) currentDistance) + "m " + timeContext;
     }
 
     private RequestTransaction createRequestTransaction(final String amount, final String comment,

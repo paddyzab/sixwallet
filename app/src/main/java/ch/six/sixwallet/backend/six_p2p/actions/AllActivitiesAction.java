@@ -5,32 +5,34 @@ import android.util.Log;
 import java.util.List;
 
 import ch.six.sixwallet.Home;
-import ch.six.sixwallet.backend.six_p2p.models.Activity;
+import ch.six.sixwallet.backend.six_p2p.models.PaymentActivity;
 import rx.functions.Action1;
 
-public class AllActivitiesAction implements Action1<List<Activity>> {
+public class AllActivitiesAction implements Action1<List<PaymentActivity>> {
+
+
 
     @Override
-    public void call(final List<Activity> activities) {
-        for (final Activity activity : activities) {
-            if (isPendingAndRequested(activity)) {
-                Log.d(Home.class.getSimpleName(), "activities pending: " + activity.getTimestamp());
+    public void call(final List<PaymentActivity> activities) {
+        for (final PaymentActivity paymentActivity : activities) {
+            if (isPendingAndRequested(paymentActivity)) {
+                Log.d(Home.class.getSimpleName(), "activities pending: " + paymentActivity.getTimestamp());
             }
         }
 
-        for (final Activity activity : activities) {
-            if (isDoneAndRequested(activity)) {
-                Log.d(Home.class.getSimpleName(), "activity done: " + activity.getTimestamp());
+        for (final PaymentActivity paymentActivity : activities) {
+            if (isDoneAndRequested(paymentActivity)) {
+                Log.d(Home.class.getSimpleName(), "activity done: " + paymentActivity.getTimestamp());
             }
         }
     }
 
-    private boolean isPendingAndRequested(final Activity activity) {
-        return (activity.getStatus() == Activity.PENDING) && (activity.getType() == Activity.REQUESTED);
+    private boolean isPendingAndRequested(final PaymentActivity paymentActivity) {
+        return (paymentActivity.getStatus() == PaymentActivity.PENDING) && (paymentActivity.getType() == PaymentActivity.REQUESTED);
     }
 
-    private boolean isDoneAndRequested(final Activity activity) {
-        return (activity.getStatus() == Activity.DONE) || (activity.getStatus() == Activity.DONE_NEWUSER) &&
-                (activity.getType() == Activity.REQUESTED);
+    private boolean isDoneAndRequested(final PaymentActivity paymentActivity) {
+        return (paymentActivity.getStatus() == PaymentActivity.DONE) || (paymentActivity.getStatus() == PaymentActivity.DONE_NEWUSER) &&
+                (paymentActivity.getType() == PaymentActivity.REQUESTED);
     }
 }

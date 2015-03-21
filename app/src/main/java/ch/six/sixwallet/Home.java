@@ -6,6 +6,7 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.json.jackson.JacksonFactory;
 
+import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
 import com.wuman.android.auth.AuthorizationFlow;
 import com.wuman.android.auth.AuthorizationUIController;
 import com.wuman.android.auth.DialogFragmentController;
@@ -15,22 +16,17 @@ import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import ch.six.sixwallet.activities.InsertActivity;
-import ch.six.sixwallet.activities.RegistrationActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
@@ -39,15 +35,16 @@ import ch.six.sixwallet.backend.six_p2p.SixApi;
 import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
+import ch.six.sixwallet.backend.six_p2p.models.PaymentActivity;
 import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
 public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListener {
-
-    private SwipeRefreshLayout mSwipeLayout;
-    private GoalView mGoalView;
 
     public final static String USER_TOKEN = "aplhdffRBBqjljPLAyMVcFBh9jTbh85f";
     public final static String CURRENT_USER = "_currentUser";
@@ -62,12 +59,35 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     @InjectView(R.id.textViewBalance)
     public TextView textViewBalance;
 
+    @InjectView(R.id.goalView)
+    public GoalView mGoalView;
+
+    @InjectView(R.id.today)
+    public TextView mTextViewToday;
+
+    @InjectView(R.id.toGoal)
+    public TextView mTextViewToGoal;
+
+    @InjectView(R.id.progressBar)
+    public HoloCircularProgressBar mProgressBar;
+
+    @InjectView(R.id.activity_main_swipe_refresh_layout)
+    public SwipeRefreshLayout mSwipeLayout;
+
+//    @OnClick(R.id.button_insertGoal)
+//    public void insertGoal() {
+//        Intent intent = new Intent(Home.this, InsertActivity.class);
+//        startActivity(intent);
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         ButterKnife.inject(this);
+        mSwipeLayout.setOnRefreshListener(this);
+
         createApis();
 
         final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
@@ -82,8 +102,19 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
 
-        sixApi.getUserActivities(USER_TOKEN).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(allActivitiesAction);
+        sixApi.getUserActivities(USER_TOKEN,
+                new Callback<List<PaymentActivity>>() {
+                    @Override
+                    public void success(List<PaymentActivity> activities,
+                            Response response) {
+                        Log.d(Home.class.getSimpleName(), "success");
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.d(Home.class.getSimpleName(), "failure");
+                    }
+                });
 
         final SharedPreferencesCredentialStore credentialStore =
                 new SharedPreferencesCredentialStore(Home.this,
@@ -100,7 +131,7 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         oauth.authorizeExplicitly(CURRENT_USER, runKeeperOauthCallback, new Handler());
 
         paymentController = new PaymentController(sixApi, runKeeperApi,
-                keyValueStorage);
+                keyValueStorage, mTextViewToday, mTextViewToGoal, mProgressBar);
 
         updateCounterController();
     }
@@ -109,29 +140,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         final ApiProvider apiProvider = new ApiProvider();
         sixApi = apiProvider.getSixApi();
         runKeeperApi = apiProvider.getRunKeeperApi();
-
-        mGoalView = (GoalView) findViewById(R.id.goalView);
-        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
-        mSwipeLayout.setOnRefreshListener(this);
-
-        ((Button) findViewById(R.id.button_registration))
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(Home.this, RegistrationActivity.class);
-                        startActivity(intent);
-                    }
-                });
-
-        findViewById(R.id.button_insertGoal).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Home.this, InsertActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
     }
 
     @Override
@@ -141,27 +149,14 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeLayout.setRefreshing(false);
+            }
+        }, TWO_SECONDS);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     private AuthorizationFlow.Builder getAuthorisationFlowBuilder(
             SharedPreferencesCredentialStore credentialStore) {
@@ -202,15 +197,5 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
                 keyValueStorage.getString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY))) {
             paymentController.updateDistanceCounter();
         }
-    }
-
-    @Override
-    public void onRefresh() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeLayout.setRefreshing(false);
-            }
-        }, TWO_SECONDS);
     }
 }
