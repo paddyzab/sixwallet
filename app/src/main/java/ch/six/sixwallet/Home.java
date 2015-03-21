@@ -1,17 +1,103 @@
 package ch.six.sixwallet;
 
+import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.json.jackson.JacksonFactory;
+
+import com.wuman.android.auth.AuthorizationFlow;
+import com.wuman.android.auth.AuthorizationUIController;
+import com.wuman.android.auth.DialogFragmentController;
+import com.wuman.android.auth.OAuthManager;
+import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
+
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.io.IOException;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import ch.six.sixwallet.backend.ApiProvider;
+import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
+import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
+import ch.six.sixwallet.backend.runkeeper.callbacks.RunKeeperOauthCallback;
+import ch.six.sixwallet.backend.six_p2p.SixApi;
+import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
+import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
+import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
+import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class Home extends Activity {
+
+    public final static String USER_TOKEN = "aplhdffRBBqjljPLAyMVcFBh9jTbh85f";
+    public final static String CURRENT_USER = "_currentUser";
+
+    private SixApi sixApi;
+    private RunKeeperApi runKeeperApi;
+    private SharedPreferencesKeyValueStorage keyValueStorage;
+    private PaymentController paymentController;
+
+    @InjectView(R.id.textViewBalance)
+    public TextView textViewBalance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        ButterKnife.inject(this);
+        createApis();
+
+        final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
+        final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
+        final UpdateFitnessActivityPageAction updateFitnessActivityPageAction
+                = new UpdateFitnessActivityPageAction();
+        final AllActivitiesAction allActivitiesAction = new AllActivitiesAction();
+
+        sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
+
+        sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
+
+        sixApi.getUserActivities(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(allActivitiesAction);
+
+        final SharedPreferencesCredentialStore credentialStore =
+                new SharedPreferencesCredentialStore(Home.this,
+                        "runKeeperStorage", new JacksonFactory());
+
+        keyValueStorage =
+                new SharedPreferencesKeyValueStorage(this,
+                        SharedPreferencesKeyValueStorage.KV_STORAGE);
+
+        final OAuthManager oauth = getOAuthManager(credentialStore);
+        final RunKeeperOauthCallback runKeeperOauthCallback = new RunKeeperOauthCallback(
+                credentialStore,
+                runKeeperApi, updateFitnessActivityPageAction, keyValueStorage);
+        oauth.authorizeExplicitly(CURRENT_USER, runKeeperOauthCallback, new Handler());
+
+        paymentController = new PaymentController(sixApi, runKeeperApi,
+                keyValueStorage);
+
+        updateCounterController();
+    }
+
+    private void createApis() {
+        final ApiProvider apiProvider = new ApiProvider();
+        sixApi = apiProvider.getSixApi();
+        runKeeperApi = apiProvider.getRunKeeperApi();
     }
 
     @Override
@@ -34,5 +120,47 @@ public class Home extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private AuthorizationFlow.Builder getAuthorisationFlowBuilder(
+            SharedPreferencesCredentialStore credentialStore) {
+        final AuthorizationFlow.Builder builder = new AuthorizationFlow.Builder(
+                BearerToken.authorizationHeaderAccessMethod(),
+                AndroidHttp.newCompatibleTransport(),
+                new JacksonFactory(),
+                new GenericUrl(RunKeeperApi.accessTokenUrl),
+                new ClientParametersAuthentication(RunKeeperApi.CLIENT_ID,
+                        RunKeeperApi.CLIENT_SECRET),
+                RunKeeperApi.CLIENT_ID,
+                RunKeeperApi.authorisationUrl);
+        builder.setCredentialStore(credentialStore);
+        return builder;
+    }
+
+    private OAuthManager getOAuthManager(SharedPreferencesCredentialStore credentialStore) {
+        final AuthorizationFlow flow = getAuthorisationFlowBuilder(credentialStore).build();
+        final AuthorizationUIController controller =
+                new DialogFragmentController(getFragmentManager()) {
+
+                    @Override
+                    public String getRedirectUri() throws IOException {
+                        return "http://localhost/Callback";
+                    }
+
+                    @Override
+                    public boolean isJavascriptEnabledForWebView() {
+                        return true;
+                    }
+
+                };
+
+        return new OAuthManager(flow, controller);
+    }
+
+    private void updateCounterController() {
+        if (StringUtils.isNotEmpty(
+                keyValueStorage.getString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY))) {
+            paymentController.updateDistanceCounter();
+        }
     }
 }
