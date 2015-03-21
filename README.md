@@ -9,7 +9,9 @@ her effort, which can either go for hers own pocket or to account of a choosen c
 
 Team members
 Albert Hugo Widmann
+
 Jean-Marie Bise
+
 Patryk Zabicki
 
 
