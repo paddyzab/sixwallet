@@ -32,6 +32,7 @@ import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
 import ch.six.sixwallet.backend.runkeeper.callbacks.RunkeeperOauthCallback;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
+import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
 import ch.six.sixwallet.backend.six_p2p.models.PaymentActivity;
 import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
@@ -69,6 +70,9 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     @InjectView(R.id.activity_main_swipe_refresh_layout)
     public SwipeRefreshLayout mSwipeLayout;
 
+    @InjectView(R.id.textViewBalance)
+    public TextView mTextViewBalance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,9 +83,12 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
         createApis();
 
+        final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(mTextViewBalance);
         final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
         final UpdateFitnessActivityPageAction updateFitnessActivityPageAction
                 = new UpdateFitnessActivityPageAction();
+        sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
 
         sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
@@ -116,6 +123,8 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
         paymentController = new PaymentController(sixApi, runKeeperApi,
                 keyValueStorage, mTextViewToday, mTextViewToGoal, mProgressBar);
+
+
     }
 
     private void createApis() {

@@ -75,6 +75,11 @@ public class PaymentController {
                         dialogBuilder.dismiss();
                     }
                 });
+
+        animate(mProgressBar, null, calculateProgress(mCurrentDistance), 1000);
+        mTextViewToday.setText(buildDistanceString(mCurrentDistance, "Today"));
+        mTextViewToGoal.setText(
+                buildDistanceString((PAYMENT_TRIGGER_THRESHOLD - mCurrentDistance), "To Go!"));
     }
 
     public void updateDistanceCounter() {

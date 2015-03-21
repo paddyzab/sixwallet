@@ -15,6 +15,6 @@ public class UpdateBalanceAction implements Action1<Balance> {
 
     @Override
     public void call(Balance balance) {
-        mTextView.setText(String.valueOf(balance.getBalance()));
+        mTextView.setText("Current balance: " + String.valueOf(balance.getBalance()) + "CHF");
     }
 }
