@@ -12,5 +12,6 @@
     <string-array name="api_array">
         <item>RunKeeper</item>
     </string-array>
+    <string name="title_activity_list_payment">ListPaymentActivity</string>
 
 </resources>

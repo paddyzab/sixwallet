@@ -23,7 +23,11 @@
         <activity
             android:name=".activities.InsertActivity"
             android:label="@string/title_activity_insert"
-            android:theme="@android:style/Theme.Material.Light.Dialog.Alert">
+            android:theme="@android:style/Theme.Material.Light.Dialog.Alert" >
+        </activity>
+        <activity
+            android:name=".activities.ListPaymentActivity"
+            android:label="@string/title_activity_list_payment" >
         </activity>
     </application>
 
