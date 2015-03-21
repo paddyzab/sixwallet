@@ -12,6 +12,8 @@ import com.wuman.android.auth.DialogFragmentController;
 import com.wuman.android.auth.OAuthManager;
 import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +36,7 @@ import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
 import ch.six.sixwallet.backend.six_p2p.callbacks.SendRequestCallback;
 import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
+import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -46,6 +49,8 @@ public class Home extends Activity {
     private SixApi sixApi;
     private RunKeeperApi runKeeperApi;
     private SendRequestCallback sendRequestCallback;
+    private SharedPreferencesKeyValueStorage keyValueStorage;
+    private PaymentController paymentController;
 
     @InjectView(R.id.textViewBalance)
     public TextView textViewBalance;
@@ -85,11 +90,20 @@ public class Home extends Activity {
                 new SharedPreferencesCredentialStore(Home.this,
                         "runKeeperStorage", new JacksonFactory());
 
+        keyValueStorage =
+                new SharedPreferencesKeyValueStorage(this,
+                        SharedPreferencesKeyValueStorage.KV_STORAGE);
+
         final OAuthManager oauth = getOAuthManager(credentialStore);
         final RunKeeperOauthCallback runKeeperOauthCallback = new RunKeeperOauthCallback(
                 credentialStore,
-                runKeeperApi, updateFitnessActivityPageAction);
+                runKeeperApi, updateFitnessActivityPageAction, keyValueStorage);
         oauth.authorizeExplicitly(CURRENT_USER, runKeeperOauthCallback, new Handler());
+
+        paymentController = new PaymentController(sixApi, runKeeperApi,
+                keyValueStorage);
+
+        updateCounterController();
     }
 
     private void createApis() {
@@ -163,5 +177,10 @@ public class Home extends Activity {
                 .setPhoneNumber(number);
     }
 
-
+    private void updateCounterController() {
+        if (StringUtils.isNotEmpty(
+                keyValueStorage.getString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY))) {
+            paymentController.updateDistanceCounter();
+        }
+    }
 }
