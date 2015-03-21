@@ -8,7 +8,7 @@ public class FitnessActivity {
     @SerializedName("start_time")
     private String startTime;
     @SerializedName("total_distance")
-    private double totalDistance;
+    private float totalDistance;
     private double duration;
     private String source;
     @SerializedName("entry_mode")
@@ -25,7 +25,7 @@ public class FitnessActivity {
         return startTime;
     }
 
-    public double getTotalDistance() {
+    public float getTotalDistance() {
         return totalDistance;
     }
 

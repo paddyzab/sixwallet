@@ -1,7 +1,5 @@
 package ch.six.sixwallet;
 
-import android.util.Log;
-
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateActivityCounterAction;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
@@ -19,17 +17,20 @@ public class PaymentController {
 
     private final double PAYMENT_TRIGGER_TRESCHOLD = 10000;
     private final SendRequestCallback sendRequestCallback;
-    private double currentDistance;
+    private float mCurrentDistance;
 
     private final UpdateActivityCounterAction mUpdateActivityCounterAction;
 
     public PaymentController(final SixApi sixApi, final RunKeeperApi runKeeperApi,
-            SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage) {
+            final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage) {
         mSixApi = sixApi;
         mRunKeeperApi = runKeeperApi;
         mSharedPreferencesKeyValueStorage = sharedPreferencesKeyValueStorage;
         sendRequestCallback = new SendRequestCallback();
         mUpdateActivityCounterAction = new UpdateActivityCounterAction(this);
+
+        mCurrentDistance = mSharedPreferencesKeyValueStorage
+                .getFloat(SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY);
     }
 
     public void updateDistanceCounter() {
@@ -41,19 +42,22 @@ public class PaymentController {
                 .subscribe(mUpdateActivityCounterAction);
     }
 
-    public String createBearerToken(final String token) {
-        return "Bearer " + token;
-    }
+    public void incrementCurrentDistance(float currentDistance) {
+        this.mCurrentDistance += currentDistance;
 
-    public void incrementCurrentDistance(double currentDistance) {
-        this.currentDistance += currentDistance;
-
-        if (currentDistance >= PAYMENT_TRIGGER_TRESCHOLD) {
-            Log.d(PaymentController.class.getSimpleName(), "We can launch payment!");
-            mSixApi.createPaymentRequest(Home.USER_TOKEN, createRequestTransaction("100", "Give me reward please", "+41796845634"),
+        // Payment threshold reached!
+        if (mCurrentDistance >= PAYMENT_TRIGGER_TRESCHOLD) {
+            mSixApi.createPaymentRequest(Home.USER_TOKEN,
+                    createRequestTransaction("100", "Give me reward please", "+41796845634"),
                     sendRequestCallback);
+
+            //resetting KV storage distance count
+            mSharedPreferencesKeyValueStorage.storeFloat(
+                    SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, 0);
+            // Payment threshold not reached, increment the counter!
         } else {
-            Log.d(PaymentController.class.getSimpleName(), "still missing some meters...");
+            mSharedPreferencesKeyValueStorage.storeFloat(
+                    SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, mCurrentDistance);
         }
     }
 
@@ -63,5 +67,9 @@ public class PaymentController {
                 .setAmount(amount)
                 .setComment(comment)
                 .setPhoneNumber(number);
+    }
+
+    private String createBearerToken(final String token) {
+        return "Bearer " + token;
     }
 }

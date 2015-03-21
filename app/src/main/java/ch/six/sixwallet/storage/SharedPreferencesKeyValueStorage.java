@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 public class SharedPreferencesKeyValueStorage {
 
     public final static String RUN_KEEPER_TOKEN_KEY = "_rk_token";
+    public final static String DISTANCE_STORAGE_KEY = "_distance_storage";
     public final static String KV_STORAGE = "_kv_storage";
     private final SharedPreferences mSharedPreferences;
     private final String EMPTY_STRING = "";
@@ -26,7 +27,17 @@ public class SharedPreferencesKeyValueStorage {
         editor.apply();
     }
 
+    public final void storeFloat(final String key, final float value) {
+        final SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putFloat(key, value);
+        editor.apply();
+    }
+
     public final String getString(final String key) {
         return mSharedPreferences.getString(key, EMPTY_STRING);
+    }
+
+    public final float getFloat(final String key) {
+        return mSharedPreferences.getFloat(key, 0.0f);
     }
 }
