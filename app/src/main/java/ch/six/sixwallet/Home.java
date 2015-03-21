@@ -1,11 +1,21 @@
 package ch.six.sixwallet;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.json.jackson.JacksonFactory;
-
 import com.wuman.android.auth.AuthorizationFlow;
 import com.wuman.android.auth.AuthorizationUIController;
 import com.wuman.android.auth.DialogFragmentController;
@@ -14,17 +24,12 @@ import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 
 import org.apache.commons.lang3.StringUtils;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
-
 import java.io.IOException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import ch.six.sixwallet.activities.InsertActivity;
+import ch.six.sixwallet.activities.RegistrationActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
@@ -38,7 +43,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class Home extends Activity {
+public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+
+    private SwipeRefreshLayout mSwipeLayout;
+    private GoalView mGoalView;
 
     public final static String USER_TOKEN = "aplhdffRBBqjljPLAyMVcFBh9jTbh85f";
     public final static String CURRENT_USER = "_currentUser";
@@ -55,6 +63,7 @@ public class Home extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
 
         ButterKnife.inject(this);
         createApis();
@@ -98,6 +107,34 @@ public class Home extends Activity {
         final ApiProvider apiProvider = new ApiProvider();
         sixApi = apiProvider.getSixApi();
         runKeeperApi = apiProvider.getRunKeeperApi();
+
+        mGoalView = (GoalView) findViewById(R.id.goalView);
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeLayout.setOnRefreshListener(this);
+
+        ((Button) findViewById(R.id.button_registration)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, RegistrationActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.button_insertGoal).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, InsertActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoalView.refresh();
     }
 
     @Override
@@ -121,6 +158,7 @@ public class Home extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private AuthorizationFlow.Builder getAuthorisationFlowBuilder(
             SharedPreferencesCredentialStore credentialStore) {
@@ -162,5 +200,18 @@ public class Home extends Activity {
                 keyValueStorage.getString(SharedPreferencesKeyValueStorage.RUN_KEEPER_TOKEN_KEY))) {
             paymentController.updateDistanceCounter();
         }
+
+
+    }
+
+    @Override
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeLayout.setRefreshing(false);
+            }
+        }, 2000);
+
     }
 }
