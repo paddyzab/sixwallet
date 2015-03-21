@@ -5,18 +5,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.Contacts;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import java.util.ArrayList;
-
 import ch.six.sixwallet.Goal;
 import ch.six.sixwallet.R;
-import ch.six.sixwallet.utils.Utils.SharedPreferences;
 
 public class InsertActivity extends Activity {
 
@@ -58,6 +53,7 @@ public class InsertActivity extends Activity {
             @Override
             public void onClick(View v) {
                 save();
+                finish();
             }
         });
     }
@@ -77,13 +73,11 @@ public class InsertActivity extends Activity {
 
 
     private void save() {
-        Goal i = new Goal();
-        i.setApi((String)mSpinner.getSelectedItem());
-        i.setName(mName.getText().toString());
-        i.setPhoneNumber(mPhoneNumber.getText().toString());
-        ArrayList array = SharedPreferences.getSavedArray();
-        array.add(i);
-        SharedPreferences.saveArray(array);
+        Goal i = new Goal(mName.getText().toString(),
+                mPhoneNumber.getText().toString(),
+                (String) mSpinner.getSelectedItem());
+
+        i.save(this);
     }
 
 }

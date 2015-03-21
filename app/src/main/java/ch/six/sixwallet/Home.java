@@ -3,6 +3,8 @@ package ch.six.sixwallet;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,15 +12,19 @@ import android.widget.Button;
 
 import ch.six.sixwallet.activities.InsertActivity;
 import ch.six.sixwallet.activities.RegistrationActivity;
-import ch.six.sixwallet.widget.DialogInsert;
 
 
-public class Home extends Activity {
+public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+
+    private SwipeRefreshLayout mSwipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeLayout.setOnRefreshListener(this);
 
         ((Button) findViewById(R.id.button_registration)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +42,8 @@ public class Home extends Activity {
                 startActivity(intent);
             }
         });
+
+
     }
 
     @Override
@@ -58,5 +66,15 @@ public class Home extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeLayout.setRefreshing(false);
+            }
+        }, 2000);
     }
 }
