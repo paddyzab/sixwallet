@@ -1,5 +1,7 @@
 package ch.six.sixwallet;
 
+import android.widget.TextView;
+
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateActivityCounterAction;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
@@ -15,14 +17,18 @@ public class PaymentController {
     private final RunKeeperApi mRunKeeperApi;
     private final SharedPreferencesKeyValueStorage mSharedPreferencesKeyValueStorage;
 
-    private final double PAYMENT_TRIGGER_TRESCHOLD = 10000;
+    private final float PAYMENT_TRIGGER_TRESCHOLD = 10000;
     private final SendRequestCallback sendRequestCallback;
     private float mCurrentDistance;
+
+    private TextView mTextViewToday;
+    private TextView mTextViewToGoal;
 
     private final UpdateActivityCounterAction mUpdateActivityCounterAction;
 
     public PaymentController(final SixApi sixApi, final RunKeeperApi runKeeperApi,
-            final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage) {
+            final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage,
+            final TextView textViewToday, final TextView textViewToGoal) {
         mSixApi = sixApi;
         mRunKeeperApi = runKeeperApi;
         mSharedPreferencesKeyValueStorage = sharedPreferencesKeyValueStorage;
@@ -31,6 +37,9 @@ public class PaymentController {
 
         mCurrentDistance = mSharedPreferencesKeyValueStorage
                 .getFloat(SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY);
+
+        mTextViewToday = textViewToday;
+        mTextViewToGoal = textViewToGoal;
     }
 
     public void updateDistanceCounter() {
@@ -59,6 +68,14 @@ public class PaymentController {
             mSharedPreferencesKeyValueStorage.storeFloat(
                     SharedPreferencesKeyValueStorage.DISTANCE_STORAGE_KEY, mCurrentDistance);
         }
+
+        mTextViewToday.setText(buildDistanceString(mCurrentDistance, "Today"));
+        mTextViewToGoal.setText(
+                buildDistanceString((PAYMENT_TRIGGER_TRESCHOLD - mCurrentDistance), "To Go!"));
+    }
+
+    private String buildDistanceString(float currentDistance, String timeContext) {
+        return String.valueOf(currentDistance) + " " + "m" + timeContext;
     }
 
     private RequestTransaction createRequestTransaction(final String amount, final String comment,

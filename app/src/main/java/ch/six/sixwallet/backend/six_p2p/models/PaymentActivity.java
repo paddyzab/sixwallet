@@ -1,6 +1,6 @@
 package ch.six.sixwallet.backend.six_p2p.models;
 
-public class Activity {
+public class PaymentActivity {
 
     //STATUSES
     public final static int OPEN = 1;

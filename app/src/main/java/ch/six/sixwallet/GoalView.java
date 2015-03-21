@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import ch.six.sixwallet.activities.ListPaymentActivity;
 
-/**
- * Created by jm on 21/03/15.
- */
 public class GoalView extends RelativeLayout {
 
 
