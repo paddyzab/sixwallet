@@ -9,13 +9,10 @@ her effort, which can either go for hers own pocket or to account of a choosen c
 
 This projects integrates new API of SIX for P2P payments, and Runkeeper API for getting fitness activtities data of a user.
 
-Team members
-
-Albert Hugo Widmann
-
-Jean-Marie Bise
-
-Patryk Zabicki
+##Team members
+- Albert Hugo Widmann
+- Jean-Marie Bise
+- Patryk Zabicki
 
 
 
