@@ -24,7 +24,7 @@ public class PaymentController {
     private final RunKeeperApi mRunKeeperApi;
     private final SharedPreferencesKeyValueStorage mSharedPreferencesKeyValueStorage;
 
-    private final float PAYMENT_TRIGGER_TRESCHOLD = 10000;
+    private final float PAYMENT_TRIGGER_THRESHOLD = 10000;
     private final SendRequestCallback sendRequestCallback;
     private float mCurrentDistance;
 
@@ -67,9 +67,9 @@ public class PaymentController {
         this.mCurrentDistance += currentDistance;
 
         // Payment threshold reached!
-        if (mCurrentDistance >= PAYMENT_TRIGGER_TRESCHOLD) {
+        if (mCurrentDistance >= PAYMENT_TRIGGER_THRESHOLD) {
             mSixApi.createPaymentRequest(Home.USER_TOKEN,
-                    createRequestTransaction("100", "Give me reward please", "+41796845634"),
+                    createRequestTransaction("100", "Goal completed, I deserve a reward!", "+41796845634"),
                     sendRequestCallback);
 
             //resetting KV storage distance count
@@ -87,11 +87,11 @@ public class PaymentController {
 
         mTextViewToday.setText(buildDistanceString(mCurrentDistance, "Today"));
         mTextViewToGoal.setText(
-                buildDistanceString((PAYMENT_TRIGGER_TRESCHOLD - mCurrentDistance), "To Go!"));
+                buildDistanceString((PAYMENT_TRIGGER_THRESHOLD - mCurrentDistance), "To Go!"));
     }
 
     private float calculateProgress(float currentDistance) {
-        return currentDistance / PAYMENT_TRIGGER_TRESCHOLD;
+        return currentDistance / PAYMENT_TRIGGER_THRESHOLD;
     }
 
 
