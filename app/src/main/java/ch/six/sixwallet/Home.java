@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
@@ -34,8 +33,6 @@ import ch.six.sixwallet.backend.six_p2p.SixApi;
 import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
-import ch.six.sixwallet.backend.six_p2p.callbacks.SendRequestCallback;
-import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
 import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -48,19 +45,11 @@ public class Home extends Activity {
 
     private SixApi sixApi;
     private RunKeeperApi runKeeperApi;
-    private SendRequestCallback sendRequestCallback;
     private SharedPreferencesKeyValueStorage keyValueStorage;
     private PaymentController paymentController;
 
     @InjectView(R.id.textViewBalance)
     public TextView textViewBalance;
-
-    @OnClick(R.id.buttonSendRequest)
-    public void sendRequest() {
-        sixApi.createPaymentRequest(USER_TOKEN,
-                createRequestTransaction("100", "Give me reward please", "+41796845634"),
-                sendRequestCallback);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +60,6 @@ public class Home extends Activity {
         createApis();
 
         final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
-        sendRequestCallback = new SendRequestCallback();
         final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
         final UpdateFitnessActivityPageAction updateFitnessActivityPageAction
                 = new UpdateFitnessActivityPageAction();
@@ -167,14 +155,6 @@ public class Home extends Activity {
                 };
 
         return new OAuthManager(flow, controller);
-    }
-
-    private RequestTransaction createRequestTransaction(final String amount, final String comment,
-            final String number) {
-        return new RequestTransaction()
-                .setAmount(amount)
-                .setComment(comment)
-                .setPhoneNumber(number);
     }
 
     private void updateCounterController() {
