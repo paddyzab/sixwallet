@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -116,7 +117,7 @@ public class ListPaymentActivity extends ListActivity {
                 }
 
                 Date date = new Date(item.getTimestamp());
-                status += " (" + date.toString() + ")";
+                status += " (" + new SimpleDateFormat("MM-dd-yyyy H:m").format(date) + ")";
 
                 ((TextView)v.findViewById(android.R.id.text1)).setText(getName(item.getPhoneNumber()) + " (" + item.getPhoneNumber() + ")");
                 ((TextView)v.findViewById(android.R.id.text2)).setText(status);
