@@ -27,11 +27,11 @@ public class AllActivitiesAction implements Action1<List<PaymentActivity>> {
         }
     }
 
-    private boolean isPendingAndRequested(final PaymentActivity paymentActivity) {
+    public static boolean isPendingAndRequested(final PaymentActivity paymentActivity) {
         return (paymentActivity.getStatus() == PaymentActivity.PENDING) && (paymentActivity.getType() == PaymentActivity.REQUESTED);
     }
 
-    private boolean isDoneAndRequested(final PaymentActivity paymentActivity) {
+    public static boolean isDoneAndRequested(final PaymentActivity paymentActivity) {
         return (paymentActivity.getStatus() == PaymentActivity.DONE) || (paymentActivity.getStatus() == PaymentActivity.DONE_NEWUSER) &&
                 (paymentActivity.getType() == PaymentActivity.REQUESTED);
     }

@@ -16,10 +16,12 @@ import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -27,6 +29,8 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
+import ch.six.sixwallet.activities.ListPaymentActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
@@ -79,6 +83,14 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 //        Intent intent = new Intent(Home.this, InsertActivity.class);
 //        startActivity(intent);
 //    }
+
+
+    @OnClick(R.id.progressBar)
+    public void launchListPaymentActivity() {
+        Intent intent = new Intent(Home.this, ListPaymentActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +146,9 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
                 keyValueStorage, mTextViewToday, mTextViewToGoal);
 
         updateCounterController();
+
+
+
     }
 
     private void createApis() {
