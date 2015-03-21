@@ -17,6 +17,9 @@ public class Goal {
         this.api = api;
 
     }
+    public Goal() {
+
+    }
 
     public String getName() {
         return name;

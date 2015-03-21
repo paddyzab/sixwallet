@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import ch.six.sixwallet.activities.InsertActivity;
 import ch.six.sixwallet.activities.RegistrationActivity;
@@ -17,12 +19,14 @@ import ch.six.sixwallet.activities.RegistrationActivity;
 public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 
     private SwipeRefreshLayout mSwipeLayout;
+    private GoalView mGoalView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mGoalView = (GoalView) findViewById(R.id.goalView);
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeLayout.setOnRefreshListener(this);
 
@@ -37,13 +41,18 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         findViewById(R.id.button_insertGoal).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //new DialogInsert(Home.this).show();
                 Intent intent = new Intent(Home.this, InsertActivity.class);
                 startActivity(intent);
             }
         });
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoalView.refresh();
     }
 
     @Override
