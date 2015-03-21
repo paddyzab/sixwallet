@@ -32,8 +32,6 @@ import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
 import ch.six.sixwallet.backend.runkeeper.callbacks.RunkeeperOauthCallback;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
-import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
-import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
 import ch.six.sixwallet.backend.six_p2p.models.PaymentActivity;
 import ch.six.sixwallet.storage.SharedPreferencesKeyValueStorage;
@@ -56,9 +54,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
     private final int TWO_SECONDS = 2000; // in milis
 
-    @InjectView(R.id.textViewBalance)
-    public TextView textViewBalance;
-
     @InjectView(R.id.goalView)
     public GoalView mGoalView;
 
@@ -74,12 +69,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     @InjectView(R.id.activity_main_swipe_refresh_layout)
     public SwipeRefreshLayout mSwipeLayout;
 
-//    @OnClick(R.id.button_insertGoal)
-//    public void insertGoal() {
-//        Intent intent = new Intent(Home.this, InsertActivity.class);
-//        startActivity(intent);
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,14 +79,9 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
         createApis();
 
-        final UpdateBalanceAction updateBalanceAction = new UpdateBalanceAction(textViewBalance);
         final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
         final UpdateFitnessActivityPageAction updateFitnessActivityPageAction
                 = new UpdateFitnessActivityPageAction();
-        final AllActivitiesAction allActivitiesAction = new AllActivitiesAction();
-
-        sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
 
         sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
@@ -132,8 +116,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
         paymentController = new PaymentController(sixApi, runKeeperApi,
                 keyValueStorage, mTextViewToday, mTextViewToGoal, mProgressBar);
-
-        updateCounterController();
     }
 
     private void createApis() {
@@ -153,6 +135,7 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                updateCounterController();
                 mSwipeLayout.setRefreshing(false);
             }
         }, TWO_SECONDS);
