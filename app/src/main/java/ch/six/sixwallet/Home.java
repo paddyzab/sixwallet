@@ -16,6 +16,7 @@ import com.wuman.android.auth.oauth2.store.SharedPreferencesCredentialStore;
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -29,6 +30,8 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import ch.six.sixwallet.activities.InsertActivity;
+import ch.six.sixwallet.activities.RegistrationActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
@@ -156,7 +159,15 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_login) {
+            final Intent intent = new Intent(Home.this, RegistrationActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.action_insert) {
+            final Intent intent = new Intent(Home.this, InsertActivity.class);
+            startActivity(intent);
             return true;
         }
 
