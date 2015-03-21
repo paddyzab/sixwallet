@@ -7,6 +7,8 @@ Thanks to talking advantage of the SIXP2P payment API we are able to proceed pay
 User can find a sponsor of his efforts - either that be family member or group of friends - and recieve rewards for 
 her effort, which can either go for hers own pocket or to account of a choosen charity.
 
+This projects integrates new API of SIX for P2P payments, and Runkeeper API for getting fitness activtities data of a user.
+
 Team members
 
 Albert Hugo Widmann
