@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -30,7 +29,9 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import ch.six.sixwallet.activities.InsertActivity;
+import ch.six.sixwallet.activities.ListPaymentActivity;
 import ch.six.sixwallet.activities.RegistrationActivity;
 import ch.six.sixwallet.backend.ApiProvider;
 import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
@@ -63,6 +64,10 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     @InjectView(R.id.goalView)
     public GoalView mGoalView;
 
+    @InjectView(R.id.textViewBalance)
+    public TextView mTextViewBalance;
+
+
     @InjectView(R.id.today)
     public TextView mTextViewToday;
 
@@ -75,8 +80,18 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
     @InjectView(R.id.activity_main_swipe_refresh_layout)
     public SwipeRefreshLayout mSwipeLayout;
 
-    @InjectView(R.id.textViewBalance)
-    public TextView mTextViewBalance;
+//    @OnClick(R.id.button_insertGoal)
+//    public void insertGoal() {
+//        Intent intent = new Intent(Home.this, InsertActivity.class);
+//        startActivity(intent);
+//    }
+
+
+    @OnClick(R.id.progressBar)
+    public void launchListPaymentActivity() {
+        Intent intent = new Intent(Home.this, ListPaymentActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,8 +143,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
 
         paymentController = new PaymentController(sixApi, runKeeperApi,
                 keyValueStorage, mTextViewToday, mTextViewToGoal, mProgressBar);
-
-
     }
 
     private void createApis() {
@@ -144,12 +157,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         mGoalView.refresh();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -174,8 +181,6 @@ public class Home extends Activity implements SwipeRefreshLayout.OnRefreshListen
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
     public void onRefresh() {
         new Handler().postDelayed(new Runnable() {
             @Override

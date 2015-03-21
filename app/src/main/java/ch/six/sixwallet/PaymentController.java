@@ -28,6 +28,7 @@ public class PaymentController {
     private final SharedPreferencesKeyValueStorage mSharedPreferencesKeyValueStorage;
 
     private final float PAYMENT_TRIGGER_THRESHOLD = 10000;
+
     private final SendRequestCallback sendRequestCallback;
     private float mCurrentDistance;
 
@@ -44,6 +45,7 @@ public class PaymentController {
             final SharedPreferencesKeyValueStorage sharedPreferencesKeyValueStorage,
             final TextView textViewToday, final TextView textViewToGoal,
             HoloCircularProgressBar progressBar) {
+
         mSixApi = sixApi;
         mRunKeeperApi = runKeeperApi;
         mSharedPreferencesKeyValueStorage = sharedPreferencesKeyValueStorage;

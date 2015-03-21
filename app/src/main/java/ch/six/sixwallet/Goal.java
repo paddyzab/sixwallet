@@ -57,7 +57,7 @@ public class Goal {
                 .getString("phoneNumber", SharedPreferencesKeyValueStorage.EMPTY_STRING);
         this.api = pref.getString("api", SharedPreferencesKeyValueStorage.EMPTY_STRING);
 
-        return (name.equals(SharedPreferencesKeyValueStorage.EMPTY_STRING) || phoneNumber
+        return !(name.equals(SharedPreferencesKeyValueStorage.EMPTY_STRING) || phoneNumber
                 .equals(SharedPreferencesKeyValueStorage.EMPTY_STRING) || api
                 .equals(SharedPreferencesKeyValueStorage.EMPTY_STRING));
     }

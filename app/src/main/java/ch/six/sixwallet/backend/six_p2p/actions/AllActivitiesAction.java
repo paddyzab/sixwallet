@@ -11,28 +11,32 @@ import rx.functions.Action1;
 public class AllActivitiesAction implements Action1<List<PaymentActivity>> {
 
 
-
     @Override
     public void call(final List<PaymentActivity> activities) {
         for (final PaymentActivity paymentActivity : activities) {
             if (isPendingAndRequested(paymentActivity)) {
-                Log.d(Home.class.getSimpleName(), "activities pending: " + paymentActivity.getTimestamp());
+                Log.d(Home.class.getSimpleName(),
+                        "activities pending: " + paymentActivity.getTimestamp());
             }
         }
 
         for (final PaymentActivity paymentActivity : activities) {
             if (isDoneAndRequested(paymentActivity)) {
-                Log.d(Home.class.getSimpleName(), "activity done: " + paymentActivity.getTimestamp());
+                Log.d(Home.class.getSimpleName(),
+                        "activity done: " + paymentActivity.getTimestamp());
             }
         }
     }
 
-    private boolean isPendingAndRequested(final PaymentActivity paymentActivity) {
-        return (paymentActivity.getStatus() == PaymentActivity.PENDING) && (paymentActivity.getType() == PaymentActivity.REQUESTED);
+
+    public static boolean isPendingAndRequested(final PaymentActivity paymentActivity) {
+        return (paymentActivity.getStatus() == PaymentActivity.PENDING) && (
+                paymentActivity.getType() == PaymentActivity.REQUESTED);
     }
 
-    private boolean isDoneAndRequested(final PaymentActivity paymentActivity) {
-        return (paymentActivity.getStatus() == PaymentActivity.DONE) || (paymentActivity.getStatus() == PaymentActivity.DONE_NEWUSER) &&
+    public static boolean isDoneAndRequested(final PaymentActivity paymentActivity) {
+        return (paymentActivity.getStatus() == PaymentActivity.DONE)
+                || (paymentActivity.getStatus() == PaymentActivity.DONE_NEWUSER) &&
                 (paymentActivity.getType() == PaymentActivity.REQUESTED);
     }
 }
