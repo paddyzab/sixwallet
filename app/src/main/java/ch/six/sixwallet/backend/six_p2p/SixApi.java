@@ -2,6 +2,7 @@ package ch.six.sixwallet.backend.six_p2p;
 
 import java.util.List;
 
+import ch.six.sixwallet.backend.six_p2p.models.Activity;
 import ch.six.sixwallet.backend.six_p2p.models.Balance;
 import ch.six.sixwallet.backend.six_p2p.models.RequestTransaction;
 import ch.six.sixwallet.backend.six_p2p.models.Transaction;
@@ -24,5 +25,8 @@ public interface SixApi {
     @PUT("/balance/transaction/request/")
     void createPaymentRequest(@Header("usertoken") String userToken,
             @Body RequestTransaction requestTransaction, Callback<?> callback);
+
+    @GET("/activity/activities/")
+    Observable<List<Activity>> getUserActivities(@Header("usertoken") String userToken);
 
 }

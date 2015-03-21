@@ -29,6 +29,7 @@ import ch.six.sixwallet.backend.runkeeper.RunKeeperApi;
 import ch.six.sixwallet.backend.runkeeper.actions.UpdateFitnessActivityPageAction;
 import ch.six.sixwallet.backend.runkeeper.callbacks.RunKeeperOauthCallback;
 import ch.six.sixwallet.backend.six_p2p.SixApi;
+import ch.six.sixwallet.backend.six_p2p.actions.AllActivitiesAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateBalanceAction;
 import ch.six.sixwallet.backend.six_p2p.actions.UpdateTransactionsAction;
 import ch.six.sixwallet.backend.six_p2p.callbacks.SendRequestCallback;
@@ -69,6 +70,7 @@ public class Home extends Activity {
         final UpdateTransactionsAction updateTransactionsAction = new UpdateTransactionsAction();
         final UpdateFitnessActivityPageAction updateFitnessActivityPageAction
                 = new UpdateFitnessActivityPageAction();
+        final AllActivitiesAction allActivitiesAction = new AllActivitiesAction();
 
         sixApi.getCurrentBalance(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateBalanceAction);
@@ -76,12 +78,16 @@ public class Home extends Activity {
         sixApi.getTransactions(USER_TOKEN).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(updateTransactionsAction);
 
+        sixApi.getUserActivities(USER_TOKEN).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(allActivitiesAction);
+
         final SharedPreferencesCredentialStore credentialStore =
                 new SharedPreferencesCredentialStore(Home.this,
                         "runKeeperStorage", new JacksonFactory());
 
         final OAuthManager oauth = getOAuthManager(credentialStore);
-        final RunKeeperOauthCallback runKeeperOauthCallback = new RunKeeperOauthCallback(credentialStore,
+        final RunKeeperOauthCallback runKeeperOauthCallback = new RunKeeperOauthCallback(
+                credentialStore,
                 runKeeperApi, updateFitnessActivityPageAction);
         oauth.authorizeExplicitly(CURRENT_USER, runKeeperOauthCallback, new Handler());
     }
